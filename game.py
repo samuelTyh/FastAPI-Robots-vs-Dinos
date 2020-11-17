@@ -20,7 +20,7 @@ class Board:
     def print_board(self):
         pprint.pprint(self._board)
 
-    def set_random_game(self, robots_count: int = 1, dinosaurs_count: int = 1):
+    def set_random_game(self, robots_count: int = 1, dinosaurs_count: int = 10):
         dinosaurs = 0
         while dinosaurs != dinosaurs_count:
             self.set_dinosaurs()
@@ -35,41 +35,48 @@ class Board:
 
     def set_dinosaurs(self, row: int = None, column: int = None):
         # create dinosaurs
-        if not row or not column:
+        if row is None or column is None:
             row = random.randint(0, self.dim-1)
             column = random.randint(0, self.dim-1)
-        if row >= self.dim or column >= self.dim:
-            raise ValueError("The dinosaurs placement is out of grid scope.")
-        if (row, column) in self.dinosaurs_position:
+
+        position = (row, column)
+        if not self.is_in_bounds(position):
+            raise Exception("The dinosaurs placement is out of grid scope.")
+        if position in self.dinosaurs_position or position in self.robots_position:
             return self.set_dinosaurs()
 
-        self.dinosaurs_position.append((row, column))
+        self.dinosaurs_position.append(position)
 
     def set_robots(self, row: int = None, column: int = None, direction: str = "E"):
         # create robots
         # define robot uuid
         robot_id = str(uuid.uuid4())
-        if not row or not column:
+
+        if row is None or column is None:
             row = random.randint(0, self.dim-1)
             column = random.randint(0, self.dim-1)
-        if row >= self.dim or column >= self.dim:
-            raise ValueError("The robots placement is out of grid scope.")
-        if (row, column) in self.dinosaurs_position or (row, column) in self.robots_position:
+
+        position = (row, column)
+        if not self.is_in_bounds(position):
+            raise Exception("The robots placement is out of grid scope.")
+        if position in self.dinosaurs_position or position in self.robots_position:
             return self.set_robots()
-        self.robots_position.append((row, column))
-        self.robots.update(**{robot_id: {"coordinate": (row, column), "direction": direction}})
+        self.robots_position.append(position)
+        self.robots.update(**{robot_id: {"coordinate": position, "direction": direction}})
 
     def initial_placement(self):
         # update all pieces to the board
+        # indicate each dinosaur has 1 life point
         for piece in self.dinosaurs_position:
-            self._board[piece] = -1
-
-        for piece in self.robots_position:
             self._board[piece] = 1
+
+        # indicate each robot has 1 attack power
+        for piece in self.robots_position:
+            self._board[piece] = -1
 
         self.print_board()
 
-    def validate_placement(self, position):
+    def validate_move(self, position):
         # make sure every new piece to place in the valid placement
         if self._board[position] != 0:
             return False
@@ -80,8 +87,15 @@ class Board:
             return True
         return False
 
+    def get_board(self):
+        return self._board
+
 
 class Game(Board):
+
+    def __init__(self, dim):
+        super().__init__(dim)
+        self._moves = 0
 
     def move_robot_forward(self, robot_id: str):
         position = self.robots[robot_id]["coordinate"]
@@ -93,12 +107,13 @@ class Game(Board):
         if not self.is_in_bounds(new_position):
             raise Exception("The move is invalid")
 
-        if not self.validate_placement(new_position):
+        if not self.validate_move(new_position):
             raise Exception("The new position has been occupied")
 
         self.robots[robot_id].update({"coordinate": new_position})
         self._board[position] = 0
         self._board[new_position] = 1
+        self._moves += 1
         self.print_board()
 
     def move_robot_backward(self, robot_id: str):
@@ -111,23 +126,26 @@ class Game(Board):
         if not self.is_in_bounds(new_position):
             raise Exception("The move is invalid")
 
-        if not self.validate_placement(new_position):
+        if not self.validate_move(new_position):
             raise Exception("The new position has been occupied")
 
         self.robots[robot_id].update({"coordinate": new_position})
         self._board[position] = 0
         self._board[new_position] = 1
+        self._moves += 1
         self.print_board()
 
     def turn_robot_right(self, robot_id: str):
         direction = self.robots[robot_id]["direction"]
         new_direction = DIRECTIONS[DIRECTIONS.index(direction) + 1]
         self.robots[robot_id].update({"direction": new_direction})
+        self._moves += 1
 
     def turn_robot_left(self, robot_id: str):
         direction = self.robots[robot_id]["direction"]
         new_direction = DIRECTIONS[DIRECTIONS.index(direction) - 1]
         self.robots[robot_id].update({"direction": new_direction})
+        self._moves += 1
 
     def attack(self, robot_id: str):
         position = self.robots[robot_id]["coordinate"]
@@ -141,8 +159,9 @@ class Game(Board):
         for opponent in opponents:
             if not self.is_in_bounds(opponent):
                 continue
-            if self._board[opponent] == -1:
-                self._board[opponent] = 0
+            if self._board[opponent] not in (0, -1):
+                self._board[opponent] = self._board[opponent] + self._board[position]
                 self.dinosaurs_position.remove(opponent)
 
+        self._moves += 1
         self.print_board()
