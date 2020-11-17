@@ -1,31 +1,31 @@
-import logging
 from game import Game
+from utils import COMMANDS
 
 
-def start_game():
-    game = Game(50)
-    game.set_random_game()
+def create_game(dim, **kargs):
+    game = Game(dim)
+    game.set_random_game(**kargs)
     return game
 
 
-def move_robot(game, command: str):
-    robot_id = list(game.robots.keys())[0]
-    if command == "move forward":
+def move_robot(game: object, robot_id: str, command: str):
+
+    if command == COMMANDS[0]:
         game.move_robot_forward(robot_id)
 
-    elif command == "move backward":
+    elif command == COMMANDS[1]:
         game.move_robot_backward(robot_id)
 
-    elif command == "turn right":
+    elif command == COMMANDS[2]:
         game.turn_robot_right(robot_id)
 
-    elif command == "turn left":
+    elif command == COMMANDS[3]:
         game.turn_robot_left(robot_id)
 
-    elif command == "attack":
+    elif command == COMMANDS[4]:
         game.attack(robot_id)
 
     else:
-        logging.error("Unsupported command")
+        raise Exception("Unsupported command")
 
     return game

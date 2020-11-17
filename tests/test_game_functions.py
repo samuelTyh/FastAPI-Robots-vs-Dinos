@@ -1,7 +1,7 @@
 from unittest.case import TestCase
 
 from game import Game
-from play import start_game, move_robot
+from play import create_game, move_robot
 
 
 class TestGameFunctions(TestCase):
@@ -12,11 +12,11 @@ class TestGameFunctions(TestCase):
     def test_initiate_game(self):
         print(f"<<< {self.test_initiate_game.__name__} start >>>")
 
-        game = start_game(self.dim)
+        game = create_game(self.dim)
         self.assertIsInstance(game, Game)
         self.assertEqual(len(game.robots), 1)
         self.assertEqual(len(game.robots_position), 1)
-        self.assertEqual(len(game.dinosaurs_position), 10)
+        self.assertEqual(len(game.dinosaurs_position), 1)
         self.assertEqual(game._moves, 0)
 
         print("<<< test pass >>>\n\n\n")
@@ -24,9 +24,10 @@ class TestGameFunctions(TestCase):
     def test_game_control_exception(self):
         print(f"<<< {self.test_game_control_exception.__name__} start >>>")
 
-        game = start_game(self.dim)
+        game = create_game(self.dim)
+        robot_robot_id = list(game.robots.keys())[0]
         with self.assertRaises(Exception):
-            move_robot(game, "exception")
+            move_robot(game, robot_robot_id, "exception")
 
         print("<<< test pass >>>\n\n\n")
 
@@ -36,8 +37,8 @@ class TestGameFunctions(TestCase):
         game = Game(self.dim)
         game.set_robots(0, 0)
         game.initial_placement()
-        uuid = list(game.robots.keys())[0]
-        game.move_robot_forward(uuid)
+        robot_id = list(game.robots.keys())[0]
+        game.move_robot_forward(robot_id)
 
         self.assertIsInstance(game, Game)
         self.assertEqual(game._moves, 1)
@@ -53,14 +54,14 @@ class TestGameFunctions(TestCase):
         game.set_robots(0, self.dim-1)
         game.set_robots(0, 0)
         game.initial_placement()
-        uuid1 = list(game.robots.keys())[0]
-        uuid2 = list(game.robots.keys())[1]
+        robot_id1 = list(game.robots.keys())[0]
+        robot_id2 = list(game.robots.keys())[1]
 
         with self.assertRaises(Exception):
-            game.move_robot_forward(uuid1)
+            game.move_robot_forward(robot_id1)
 
         with self.assertRaises(Exception):
-            game.move_robot_forward(uuid2)
+            game.move_robot_forward(robot_id2)
 
         self.assertIsInstance(game, Game)
         self.assertEqual(game._moves, 0)
@@ -73,8 +74,8 @@ class TestGameFunctions(TestCase):
         game = Game(self.dim)
         game.set_robots(0, self.dim-1)
         game.initial_placement()
-        uuid = list(game.robots.keys())[0]
-        game.move_robot_backward(uuid)
+        robot_id = list(game.robots.keys())[0]
+        game.move_robot_backward(robot_id)
 
         self.assertIsInstance(game, Game)
         self.assertEqual(game._moves, 1)
@@ -90,14 +91,14 @@ class TestGameFunctions(TestCase):
         game.set_robots(0, 0)
         game.set_robots(0, self.dim-1)
         game.initial_placement()
-        uuid1 = list(game.robots.keys())[0]
-        uuid2 = list(game.robots.keys())[1]
+        robot_id1 = list(game.robots.keys())[0]
+        robot_id2 = list(game.robots.keys())[1]
 
         with self.assertRaises(Exception):
-            game.move_robot_backward(uuid1)
+            game.move_robot_backward(robot_id1)
 
         with self.assertRaises(Exception):
-            game.move_robot_backward(uuid2)
+            game.move_robot_backward(robot_id2)
 
         self.assertIsInstance(game, Game)
         self.assertEqual(game._moves, 0)
@@ -110,14 +111,29 @@ class TestGameFunctions(TestCase):
         game = Game(self.dim)
         game.set_robots(0, 0)
         game.initial_placement()
-        uuid = list(game.robots.keys())[0]
+        robot_id = list(game.robots.keys())[0]
 
-        self.assertEqual(game.robots[uuid]['direction'], "E")
+        self.assertEqual(game.robots[robot_id]['direction'], "E")
 
-        game.turn_robot_right(uuid)
+        game.turn_robot_right(robot_id)
         self.assertIsInstance(game, Game)
-        self.assertEqual(game.robots[uuid]['direction'], "S")
+        self.assertEqual(game.robots[robot_id]['direction'], "S")
         self.assertEqual(game._moves, 1)
+
+        game.turn_robot_right(robot_id)
+        self.assertIsInstance(game, Game)
+        self.assertEqual(game.robots[robot_id]['direction'], "W")
+        self.assertEqual(game._moves, 2)
+
+        game.turn_robot_right(robot_id)
+        self.assertIsInstance(game, Game)
+        self.assertEqual(game.robots[robot_id]['direction'], "N")
+        self.assertEqual(game._moves, 3)
+
+        game.turn_robot_right(robot_id)
+        self.assertIsInstance(game, Game)
+        self.assertEqual(game.robots[robot_id]['direction'], "E")
+        self.assertEqual(game._moves, 4)
 
         print("<<< test pass >>>\n\n\n")
 
@@ -127,14 +143,29 @@ class TestGameFunctions(TestCase):
         game = Game(self.dim)
         game.set_robots(0, 0)
         game.initial_placement()
-        uuid = list(game.robots.keys())[0]
+        robot_id = list(game.robots.keys())[0]
 
-        self.assertEqual(game.robots[uuid]['direction'], "E")
+        self.assertEqual(game.robots[robot_id]['direction'], "E")
 
-        game.turn_robot_left(uuid)
+        game.turn_robot_left(robot_id)
         self.assertIsInstance(game, Game)
-        self.assertEqual(game.robots[uuid]['direction'], "N")
+        self.assertEqual(game.robots[robot_id]['direction'], "N")
         self.assertEqual(game._moves, 1)
+
+        game.turn_robot_left(robot_id)
+        self.assertIsInstance(game, Game)
+        self.assertEqual(game.robots[robot_id]['direction'], "W")
+        self.assertEqual(game._moves, 2)
+
+        game.turn_robot_left(robot_id)
+        self.assertIsInstance(game, Game)
+        self.assertEqual(game.robots[robot_id]['direction'], "S")
+        self.assertEqual(game._moves, 3)
+
+        game.turn_robot_left(robot_id)
+        self.assertIsInstance(game, Game)
+        self.assertEqual(game.robots[robot_id]['direction'], "E")
+        self.assertEqual(game._moves, 4)
 
         print("<<< test pass >>>\n\n\n")
 
@@ -148,17 +179,17 @@ class TestGameFunctions(TestCase):
         game.set_dinosaurs(2, 1)
         game.set_robots(1, 1)
         game.initial_placement()
-        uuid = list(game.robots.keys())[0]
+        robot_id = list(game.robots.keys())[0]
 
-        game.attack(uuid)
+        game.attack(robot_id)
         self.assertIsInstance(game, Game)
         self.assertEqual(len(game.dinosaurs_position), 0)
         self.assertEqual(game._moves, 1)
 
         print("<<< test pass >>>\n\n\n")
 
-    def test_invalid_setting(self):
-        print(f"<<< {self.test_invalid_setting.__name__} start >>>")
+    def test_invalrobot_id_setting(self):
+        print(f"<<< {self.test_invalrobot_id_setting.__name__} start >>>")
 
         game = Game(self.dim)
         with self.assertRaises(Exception):
