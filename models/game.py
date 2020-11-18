@@ -200,9 +200,3 @@ class Game(Board):
 
     def get_number_of_moves(self):
         return self._moves
-
-    def delete_game(self):
-        self.delete_board()
-        Board.robots = {}
-        Board.robots_position = []
-        Board.dinosaurs_position = []

@@ -1,7 +1,7 @@
 from unittest.case import TestCase
 
 from models.game import Game
-from services.play import create_game, move_robot
+from services.play import create_random_game, create_game, move_robot
 
 
 class TestGameFunctions(TestCase):
@@ -9,10 +9,10 @@ class TestGameFunctions(TestCase):
     def setUp(self):
         self.dim = 10
 
-    def test_initiate_game(self):
-        print(f"<<< {self.test_initiate_game.__name__} start >>>")
+    def test_initiate_random_game(self):
+        print(f"<<< {self.test_initiate_random_game.__name__} start >>>")
 
-        game = create_game(self.dim)
+        game = create_random_game(self.dim)
         self.assertIsInstance(game, Game)
         self.assertEqual(len(game.robots), 1)
         self.assertEqual(len(game.robots_position), 1)
@@ -21,25 +21,42 @@ class TestGameFunctions(TestCase):
 
         print("<<< test pass >>>\n\n\n")
 
-    def test_initiate_game_exception(self):
-        print(f"<<< {self.test_initiate_game_exception.__name__} start >>>")
+    def test_initiate_random_game_exception(self):
+        print(f"<<< {self.test_initiate_random_game_exception.__name__} start >>>")
 
         with self.assertRaises(Exception):
-            create_game(self.dim, robots_count=self.dim*self.dim+1, dinosaurs_count=0)
+            create_random_game(self.dim, robots_count=self.dim*self.dim+1, dinosaurs_count=0)
 
         with self.assertRaises(Exception):
-            create_game(self.dim, robots_count=0, dinosaurs_count=self.dim*self.dim+1)
+            create_random_game(self.dim, robots_count=0, dinosaurs_count=self.dim*self.dim+1)
 
         with self.assertRaises(Exception):
-            create_game(self.dim, robots_count=self.dim*self.dim//2, dinosaurs_count=self.dim*self.dim//2+1)
+            create_random_game(self.dim, robots_count=self.dim*self.dim//2, dinosaurs_count=self.dim*self.dim//2+1)
 
-    async def test_game_control_exception(self):
+        print("<<< test pass >>>\n\n\n")
+
+    def test_create_game(self):
+        print(f"<<< {self.test_initiate_random_game_exception.__name__} start >>>")
+
+        robots = [(0, 0)]
+        dinosaurs = [(self.dim-1, self.dim-1)]
+        game = create_game(self.dim, robots, dinosaurs)
+        self.assertIsInstance(game, Game)
+        self.assertEqual(len(game.robots), 1)
+        self.assertEqual(len(game.robots_position), 1)
+        self.assertIn((0, 0), game.robots_position)
+        self.assertEqual(len(game.dinosaurs_position), 1)
+        self.assertIn((self.dim-1, self.dim-1), game.dinosaurs_position)
+
+        print("<<< test pass >>>\n\n\n")
+
+    def test_game_control_exception(self):
         print(f"<<< {self.test_game_control_exception.__name__} start >>>")
 
-        game = create_game(self.dim)
+        game = create_random_game(self.dim)
         robot_robot_id = list(game.robots.keys())[0]
         with self.assertRaises(Exception):
-            await move_robot(game, robot_robot_id, "exception")
+            move_robot(game, robot_robot_id, "exception")
 
         print("<<< test pass >>>\n\n\n")
 
@@ -200,8 +217,8 @@ class TestGameFunctions(TestCase):
 
         print("<<< test pass >>>\n\n\n")
 
-    def test_invalrobot_id_setting(self):
-        print(f"<<< {self.test_invalrobot_id_setting.__name__} start >>>")
+    def test_invalid_robot_id_setting(self):
+        print(f"<<< {self.test_invalid_robot_id_setting.__name__} start >>>")
 
         game = Game(self.dim)
         with self.assertRaises(Exception):
