@@ -1,10 +1,12 @@
 from fastapi import FastAPI
-from fastapi.responses import JSONResponse, HTMLResponse
+from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse
 import logging
 
-from utils import COMMANDS, create_html
-from items import GameInfo, ErrorMessage, RobotInfo
-from play import create_game, move_robot
+from services.utils import COMMANDS, create_html
+from models.items import GameInfo, ErrorMessage, RobotInfo
+from models.setting import get_app_settings
+from services.play import create_game, move_robot
+from models.game import Game
 
 # Setting logging
 logging.basicConfig(filename='record.log', level=logging.DEBUG)
@@ -13,22 +15,23 @@ logger = logging.getLogger(__name__)
 # Caching the games by id
 GAMES = {}
 
+app_settings = get_app_settings()
+
 app = FastAPI(
-    title="Robots vs Dinosaurs",
-    description="A service that provides a REST API to support simulating an army \
-                of remote-controlled robots to fight the dinosaurs",
-    version="0.0.1"
+    title=app_settings.title,
+    description=app_settings.description,
+    version=app_settings.version,
+    debug=app_settings.debug,
 )
 
 
 @app.get("/")
-def read_root():
-    res = {"app_name": "Robots vs Dinosaurs", "version": app.version}
-    return JSONResponse(res)
+def read_root() -> RedirectResponse:
+    return RedirectResponse("/docs")
 
 
 @app.post("/games/start", responses={400: {"model": ErrorMessage}})
-def start_game(item: GameInfo):
+def start_game(item: GameInfo) -> JSONResponse:
     dim, robots, dinosaurs = item.grid_dim, item.robots, item.dinosaurs
     if dim <= 2:
         return JSONResponse(
@@ -36,7 +39,7 @@ def start_game(item: GameInfo):
             content={"status": False, "detail": "You must create a bigger grid"}
         )
 
-    match = create_game(dim, robots_count=robots, dinosaurs_count=dinosaurs)
+    match: Game = create_game(dim, robots_count=robots, dinosaurs_count=dinosaurs)
     GAMES[str(match.game_id)] = match
 
     logger.info("The Game has begun")
@@ -55,18 +58,17 @@ def start_game(item: GameInfo):
 
 
 @app.get("/games/display/{game_id}")
-def display_game(game_id: str):
+def display_game(game_id: str) -> HTMLResponse:
     game = GAMES[game_id]
     html = create_html(game_id, game.get_board(), game.dim)
     return HTMLResponse(content=html, status_code=200)
 
 
 @app.put("/games/play/{game_id}", responses={400: {"model": ErrorMessage}})
-def play_robots(game_id: str, item: RobotInfo):
+async def play_robots(game_id: str, item: RobotInfo) -> JSONResponse:
     try:
-        game = GAMES[game_id]
-        robot_id_list = list(game.robots.keys())
-        chose_robot = robot_id_list[item.robot_id % len(robot_id_list)]
+        game: Game = GAMES[game_id]
+        chose_robot = str(item.robot_id)
         command = COMMANDS[item.command % len(COMMANDS)]
     except ZeroDivisionError:
         return JSONResponse(
@@ -85,10 +87,10 @@ def play_robots(game_id: str, item: RobotInfo):
         )
 
     if not chose_robot:
-        chose_robot = robot_id_list[0]
+        chose_robot = list(game.robots.keys())[0]
 
     try:
-        move_robot(game, chose_robot, command)
+        await move_robot(game, chose_robot, command)
     except Exception as e:
         return JSONResponse(
             status_code=400,
@@ -109,9 +111,9 @@ def play_robots(game_id: str, item: RobotInfo):
 
 
 @app.delete("/games/delete/{game_id}")
-def remove_game(game_id: str):
+def remove_game(game_id: str) -> JSONResponse:
     try:
-        game = GAMES[game_id]
+        game: Game = GAMES[game_id]
         game.delete_game()
     except ZeroDivisionError:
         return JSONResponse(

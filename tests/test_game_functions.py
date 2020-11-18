@@ -1,7 +1,7 @@
 from unittest.case import TestCase
 
-from game import Game
-from play import create_game, move_robot
+from models.game import Game
+from services.play import create_game, move_robot
 
 
 class TestGameFunctions(TestCase):
@@ -21,13 +21,25 @@ class TestGameFunctions(TestCase):
 
         print("<<< test pass >>>\n\n\n")
 
-    def test_game_control_exception(self):
+    def test_initiate_game_exception(self):
+        print(f"<<< {self.test_initiate_game_exception.__name__} start >>>")
+
+        with self.assertRaises(Exception):
+            create_game(self.dim, robots_count=self.dim*self.dim+1, dinosaurs_count=0)
+
+        with self.assertRaises(Exception):
+            create_game(self.dim, robots_count=0, dinosaurs_count=self.dim*self.dim+1)
+
+        with self.assertRaises(Exception):
+            create_game(self.dim, robots_count=self.dim*self.dim//2, dinosaurs_count=self.dim*self.dim//2+1)
+
+    async def test_game_control_exception(self):
         print(f"<<< {self.test_game_control_exception.__name__} start >>>")
 
         game = create_game(self.dim)
         robot_robot_id = list(game.robots.keys())[0]
         with self.assertRaises(Exception):
-            move_robot(game, robot_robot_id, "exception")
+            await move_robot(game, robot_robot_id, "exception")
 
         print("<<< test pass >>>\n\n\n")
 
