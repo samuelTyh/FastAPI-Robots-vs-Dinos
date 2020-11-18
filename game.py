@@ -105,7 +105,7 @@ class Game(Board):
 
     def __init__(self, dim):
         super().__init__(dim)
-        self.id = self.id = random.randint(1, 9999)
+        self.game_id = random.randint(1, 9999)
         self._moves = 0
 
     def move_robot_forward(self, robot_id: str):
@@ -178,3 +178,12 @@ class Game(Board):
 
         self._moves += 1
         self.print_board()
+
+    def get_number_of_moves(self):
+        return self._moves
+
+    def delete_game(self):
+        self.delete_board()
+        self.robots = {}
+        self.robots_position = []
+        self.dinosaurs_position = []
