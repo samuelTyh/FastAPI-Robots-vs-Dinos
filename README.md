@@ -42,7 +42,8 @@ Grover is assembling an army of remote-controlled robots to fight the dinosaurs 
 
 ---
 
-##Quickstart
+## Quickstart
+
 ### Run locally
 * Prerequisites
     1. MacOS
