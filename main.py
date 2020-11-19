@@ -34,7 +34,7 @@ def read_root() -> RedirectResponse:
     
     
 @app.post("/games/start", responses={200: {"model": StartResponse}, 400: {"model": ErrorMessage}})
-def start_game(item: GamePayload) -> JSONResponse:
+async def start_game(item: GamePayload) -> JSONResponse:
     """
     Start a game
     :param item: parameters to initialize a game instance
@@ -51,9 +51,9 @@ def start_game(item: GamePayload) -> JSONResponse:
             )
 
         if robots and dinosaurs:
-            match: Game = create_game(dim, robots=robots, dinosaurs=dinosaurs)
+            match: Game = await create_game(dim, robots=robots, dinosaurs=dinosaurs)
         else:
-            match: Game = create_random_game(dim, robots_count=robots_count, dinosaurs_count=dinosaurs_count)
+            match: Game = await create_random_game(dim, robots_count=robots_count, dinosaurs_count=dinosaurs_count)
 
         GAMES[str(match.game_id)] = match
         logger.info(f">>>>>     Game {match.game_id} started     <<<<<<")
@@ -70,7 +70,7 @@ def start_game(item: GamePayload) -> JSONResponse:
         logger.info(f"{res}")
         return JSONResponse(status_code=200, content=res)
 
-    except Exception as e:  # TODO: http error handler
+    except Exception as e:
         logger.error(f"Exception: {e}")
         return JSONResponse(
             status_code=400,
@@ -96,7 +96,7 @@ def display_game(game_id: str) -> HTMLResponse:
         html = create_html(game_id, game.get_board(), game.dim)
         return HTMLResponse(content=html, status_code=200)
 
-    except Exception as e:  # TODO: http error handler
+    except Exception as e:
         logger.error(f"Exception: {e}")
         return JSONResponse(
             status_code=400,
@@ -106,7 +106,7 @@ def display_game(game_id: str) -> HTMLResponse:
 
 @app.put("/games/{game_id}",
          responses={200: {"model": StartResponse}, 400: {"model": ErrorMessage}, 404: {"model": ErrorMessage}})
-def play_robots(game_id: str, item: RobotPayload) -> JSONResponse:
+async def play_robots(game_id: str, item: RobotPayload) -> JSONResponse:
     """
     Operate specified robot to move forward and backward, turn right and left, and attack
     :param game_id: a specified game id
@@ -140,7 +140,7 @@ def play_robots(game_id: str, item: RobotPayload) -> JSONResponse:
             )
 
         command = COMMANDS[item.command]
-        game = move_robot(game, chose_robot, command)
+        game = await move_robot(game, chose_robot, command)
         res = {
             "game_id": game_id,
             "robot_id": chose_robot,
@@ -156,7 +156,7 @@ def play_robots(game_id: str, item: RobotPayload) -> JSONResponse:
             logger.info(f">>>>>     Game {game_id} completed     <<<<<<")
         return JSONResponse(status_code=200, content=res)
 
-    except Exception as e:  # TODO: http error handler
+    except Exception as e:
         logger.error(f"Exception: {e}")
         return JSONResponse(
             status_code=400,
@@ -186,7 +186,7 @@ def remove_game(game_id: str) -> JSONResponse:
         logger.info(f"{res}")
         return JSONResponse(status_code=204, content={})
 
-    except Exception as e:  # TODO: http error handler
+    except Exception as e:
         logger.error(f"Exception: {e}")
         return JSONResponse(
             status_code=400,
@@ -205,7 +205,7 @@ def remove_games() -> JSONResponse:
         logger.info("all games deleted")
         return JSONResponse(status_code=204, content={})
 
-    except Exception as e:  # TODO: http error handler
+    except Exception as e:
         logger.error(f"Exception: {e}")
         return JSONResponse(
             status_code=400,

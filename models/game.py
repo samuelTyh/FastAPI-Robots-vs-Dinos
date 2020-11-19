@@ -146,7 +146,7 @@ class Game(Board):
 
         self.print_board()
 
-    def set_random_game(self, robots_count: int = 1, dinosaurs_count: int = 1):
+    async def set_random_game(self, robots_count: int = 1, dinosaurs_count: int = 1):
         """
         Set a random-placement game, define the number of roles in each camp
         :param robots_count: the total number of robots, the default is 1
@@ -170,7 +170,7 @@ class Game(Board):
 
         self.initial_placement()
 
-    def move_robot_forward(self, robot_id: str):
+    async def move_robot_forward(self, robot_id: str):
         """
         Move a specified robot forward
         :param robot_id: the robot id
@@ -211,7 +211,7 @@ class Game(Board):
         self._moves += 1
         self.print_board()
 
-    def move_robot_backward(self, robot_id: str):
+    async def move_robot_backward(self, robot_id: str):
         """
         Move a specified robot backward
         :param robot_id: the robot id
@@ -252,7 +252,7 @@ class Game(Board):
         self._moves += 1
         self.print_board()
 
-    def turn_robot_right(self, robot_id: str):
+    async def turn_robot_right(self, robot_id: str):
         """
         Turn a specified robot right
         :param robot_id: the robot id
@@ -269,7 +269,7 @@ class Game(Board):
         self._moves += 1
         self.print_board()
 
-    def turn_robot_left(self, robot_id: str):
+    async def turn_robot_left(self, robot_id: str):
         """
         Turn a specified robot left
         :param robot_id: the robot id
@@ -286,7 +286,7 @@ class Game(Board):
         self._moves += 1
         self.print_board()
 
-    def attack(self, robot_id: str):
+    async def attack(self, robot_id: str):
         """
         Attack opponents in four directions around the robot
         :param robot_id: the robot id

@@ -3,7 +3,7 @@ from models.game import Game
 from services.utils import COMMANDS
 
 
-def create_random_game(dim: int, **kargs) -> Game:
+async def create_random_game(dim: int, **kargs) -> Game:
     """
     Create a random game instance
     :param dim: grid dimension
@@ -13,11 +13,11 @@ def create_random_game(dim: int, **kargs) -> Game:
     if not dim:
         raise TypeError("Dimension is necessary")
     game = Game(dim)
-    game.set_random_game(**kargs)
+    await game.set_random_game(**kargs)
     return game
 
 
-def create_game(dim: int, robots: List[Dict], dinosaurs: List[tuple]) -> Game:
+async def create_game(dim: int, robots: List[Dict], dinosaurs: List[tuple]) -> Game:
     """
     Create a game instance and set certain positions for robots and dinosaurs
     :param dim: grid dimension
@@ -40,7 +40,7 @@ def create_game(dim: int, robots: List[Dict], dinosaurs: List[tuple]) -> Game:
     return game
 
 
-def move_robot(game: Game, robot_id: str, command: str) -> Game:
+async def move_robot(game: Game, robot_id: str, command: str) -> Game:
     """
     Operate a certain robot to move
     :param game: game instance
@@ -50,19 +50,19 @@ def move_robot(game: Game, robot_id: str, command: str) -> Game:
     """
 
     if command == COMMANDS[0]:
-        game.move_robot_forward(robot_id)
+        await game.move_robot_forward(robot_id)
 
     elif command == COMMANDS[1]:
-        game.move_robot_backward(robot_id)
+        await game.move_robot_backward(robot_id)
 
     elif command == COMMANDS[2]:
-        game.turn_robot_right(robot_id)
+        await game.turn_robot_right(robot_id)
 
     elif command == COMMANDS[3]:
-        game.turn_robot_left(robot_id)
+        await game.turn_robot_left(robot_id)
 
     elif command == COMMANDS[4]:
-        game.attack(robot_id)
+        await game.attack(robot_id)
 
     else:
         raise Exception("Unsupported command")
