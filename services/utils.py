@@ -1,27 +1,40 @@
 import numpy as np
 import pandas as pd
 
-# directions set
+# The directions set, clockwise order
 DIRECTIONS = ["E", "S", "W", "N"]
 
-# head east and west -> move between columns
-# head north and south -> move between rows
+# Heading east and west -> move between columns
+# Heading north and south -> move between rows
 DIRECTION_BASED_INDEX = {"E": 1, "S": 0, "W": 1, "N": 0}
 
-# identity vector of each direction
+# Identity vector of each direction
 MOVING_VECTOR = {"E": 1, "S": 1, "W": -1, "N": -1}
 
-# commands set
+# The commands set
 COMMANDS = ["move forward", "move backward", "turn right", "turn left", "attack"]
 
 
-def create_new_board(dim):
+def create_new_board(dim: int) -> np.ndarray:
+    """
+    :param dim: dimension of the grid
+    :return: a zero-matrix composed by numpy 2d array
+    """
     # create a clear board
+    if not dim:
+        raise TypeError("Dimension is necessary")
     board = np.zeros((dim, dim), dtype=int)
     return board
 
 
-def create_html(game_id, board, dim):
+def create_html(game_id: str, board: np.ndarray, dim: int):
+    """
+    Display game board in HTML format via pandas
+    :param game_id: a specified game id
+    :param board: the game board presented by numpy 2d array
+    :param dim: dimension of the grid
+    :return: html
+    """
     # create simple table in html format
     columns = [f"{n}" for n in range(dim)]
     df = pd.DataFrame(board, columns=columns)

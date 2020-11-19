@@ -38,7 +38,7 @@ class TestGameFunctions(TestCase):
     def test_create_game(self):
         print(f"<<< {self.test_initiate_random_game_exception.__name__} start >>>")
 
-        robots = [(0, 0)]
+        robots = [{"coordinate": (0, 0), "direction": "N"}]
         dinosaurs = [(self.dim-1, self.dim-1)]
         game = create_game(self.dim, robots, dinosaurs)
         self.assertIsInstance(game, Game)

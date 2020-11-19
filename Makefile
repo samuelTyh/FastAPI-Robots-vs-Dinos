@@ -6,7 +6,15 @@ imageName=fastapi-bundle
 test:
 	@printf "Starting tests \n"
 	python -m unittest discover tests
-	@printf "\nFinished tests \n"
+	@printf "\nFinished all tests \n"
+
+
+install:
+	pip install -r requirements.txt
+
+start-local:
+	uvicorn main:app --reload
+
 
 init:
 	$(DOCKER_COMPOSE_EXEC) up -d --build

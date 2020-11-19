@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 from models.game import Game
 from services.utils import COMMANDS
 
@@ -17,7 +17,7 @@ def create_random_game(dim: int, **kargs) -> Game:
     return game
 
 
-def create_game(dim: int, robots: List[tuple], dinosaurs: List[tuple]) -> Game:
+def create_game(dim: int, robots: List[Dict], dinosaurs: List[tuple]) -> Game:
     """
     Create a game instance and set certain positions for robots and dinosaurs
     :param dim: grid dimension
@@ -31,8 +31,10 @@ def create_game(dim: int, robots: List[tuple], dinosaurs: List[tuple]) -> Game:
     for row, col in dinosaurs:
         game.set_dinosaurs(row=row, column=col)
 
-    for row, col in robots:
-        game.set_robots(row=row, column=col)
+    for content in robots:
+        row, col = content["coordinate"][0], content["coordinate"][1]
+        direction = content["direction"]
+        game.set_robots(row=row, column=col, direction=direction)
 
     game.initial_placement()
     return game
