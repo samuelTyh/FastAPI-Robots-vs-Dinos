@@ -4,12 +4,13 @@ This API service was built with Python 3.7, FastAPI and based on standard Python
 The key features are:  
 1. Flexible game grid: Create a game grid (default 50 by 50) with flexible dimensions (at least 2 by 2)
 2. Quickstart 1 vs 1: Without specifying the positions on the grid of each role
+3. Game grid display: Using a simple HTML table present the current state
 
-[Demo website](https://robots-vs-dinos-e2rgcwogsq-ew.a.run.app/)
 
 [Navigate to project requirement](#features-required)
 
 ## Quickstart
+[API document](https://robots-vs-dinos-e2rgcwogsq-ew.a.run.app/redoc)
 
 ### Run locally
 * Prerequisites
@@ -66,10 +67,10 @@ python -m unittest discover tests
     * Create a default 50 by 50 grid if not specifying the dimension
     
 - [x] Be able to create a robot in a certain position and facing direction;
-    * Create at least one robot with specified position and direction or not
+    * Create at least one robot with a specific or a random position and direction
     
 - [x] Be able to create a dinosaur in a certain position;
-    * Create at least one dinosaur with specified position or not
+    * Create at least one dinosaur with a specific or a random position
     
 - [x] Issue instructions to a robot - a robot can turn left, turn right, move forward, move backward, and attack;
     * The robot can move forward or backward (move one step in the grid)
@@ -80,5 +81,8 @@ python -m unittest discover tests
     
 - [x] No need to worry about the dinosaurs - dinosaurs don't move;
 - [x] Display the simulation's current state;
+    * Get the response from every move, and use endpoint to display in html
 - [x] Two or more entities (robots or dinosaurs) cannot occupy the same position;
+    * Start checking mechanism during setting entities
 - [x] Attempting to move a robot outside the simulation space is an invalid operation.
+    * Start checking mechanism during moving entities
