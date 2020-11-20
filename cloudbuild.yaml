@@ -1,0 +1,39 @@
+steps:
+  - name: gcr.io/cloud-builders/docker
+    args:
+      [
+        "build",
+        "--build-arg",
+        "PROJECT_ID=${PROJECT_ID}",
+        "--cache-from",
+        "eu.gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest",
+        "-t",
+        "eu.gcr.io/$PROJECT_ID/${_SERVICE_NAME}:${COMMIT_SHA}",
+        "-t",
+        "eu.gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest",
+        "."
+      ]
+    id: "build-service"
+
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "eu.gcr.io/$PROJECT_ID/${_SERVICE_NAME}"]
+    id: "push-service"
+
+  - name: "gcr.io/cloud-builders/gcloud"
+    args:
+      [
+        "run",
+        "deploy",
+        "${_SERVICE_NAME}",
+        "--image",
+        "eu.gcr.io/$PROJECT_ID/${_SERVICE_NAME}:${COMMIT_SHA}",
+        "--region",
+        "europe-west1",
+        "--platform",
+        "managed",
+        "--allow-unauthenticated",
+      ]
+    id: "deploy-service"
+
+substitutions:
+  _SERVICE_NAME: "robots-vs-dinos-api"
