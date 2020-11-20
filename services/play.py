@@ -3,7 +3,7 @@ from models.game import Game
 from services.utils import COMMANDS
 
 
-async def create_random_game(dim: int, **kargs) -> Game:
+def create_random_game(dim: int, **kargs) -> Game:
     """
     Create a random game instance
     :param dim: grid dimension
@@ -13,11 +13,11 @@ async def create_random_game(dim: int, **kargs) -> Game:
     if not dim:
         raise TypeError("Dimension is necessary")
     game = Game(dim)
-    await game.set_random_game(**kargs)
+    game.set_random_game(**kargs)
     return game
 
 
-async def create_game(dim: int, robots: List[Dict], dinosaurs: List[tuple]) -> Game:
+def create_game(dim: int, robots: List[Dict], dinosaurs: List[tuple]) -> Game:
     """
     Create a game instance and set certain positions for robots and dinosaurs
     :param dim: grid dimension

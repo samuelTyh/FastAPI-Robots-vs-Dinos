@@ -1,5 +1,5 @@
 from typing import List
-from services.utils import DIRECTIONS, DIRECTION_BASED_INDEX, MOVING_VECTOR, create_new_board
+from services.utils import DIRECTIONS, DIRECTION_BASED_INDEX, MOVING_VECTOR, create_new_board, select_empty_position
 
 import pprint
 import random
@@ -39,20 +39,15 @@ class Board:
                 "All positions in the grid have been occupied or you set too many robots/dinosaurs in the grid"
             )
 
-        # Create dinosaurs by random selection if the position not specified or specified wrong
-        if row is None or column is None:
-            row = random.randint(0, self.dim-1)
-            column = random.randint(0, self.dim-1)
-
         position = (row, column)
+        # Randomly select in available positions if the position not specified or specified wrong
+        if row is None or column is None:
+            available = select_empty_position(self._board)
+            position = random.choice(available)
+
         if not self.is_in_grid(position):
             logger.error(f"The position {position} is out of grid")
             raise Exception("The dinosaurs placement is out of grid scope")
-
-        # Re-run a selection if the position is occupied
-        if position in self.dinosaurs_position or position in self.robots_position:
-            logger.info(f"The position {position} is occupied, re-run selection")
-            return self.set_dinosaurs()
 
         # Record the position of a new role
         logger.info(f"Set a dinosaur at {position}")
@@ -77,20 +72,15 @@ class Board:
         # Define a random id for robot
         robot_id = str(random.getrandbits(16))
 
-        # Create robots by random selection if the position not specified or specified wrong
-        if row is None or column is None:
-            row = random.randint(0, self.dim-1)
-            column = random.randint(0, self.dim-1)
-
         position = (row, column)
+        # Randomly select in available positions if the position not specified or specified wrong
+        if row is None or column is None:
+            available = select_empty_position(self._board)
+            position = random.choice(available)
+
         if not self.is_in_grid(position):
             logger.error(f"The position {position} is out of grid")
-            raise Exception("The robots placement is out of grid scope")
-
-        # Re-run a selection if the position is occupied
-        if position in self.dinosaurs_position or position in self.robots_position:
-            logger.info(f"The position {position} is occupied, re-run selection")
-            return self.set_robots()
+            raise Exception("The dinosaurs placement is out of grid scope")
 
         # Record the position of a new role
         logger.info(f"Set a robot at {position}, facing {direction}")
@@ -146,7 +136,7 @@ class Game(Board):
 
         self.print_board()
 
-    async def set_random_game(self, robots_count: int = 1, dinosaurs_count: int = 1):
+    def set_random_game(self, robots_count: int = 1, dinosaurs_count: int = 1):
         """
         Set a random-placement game, define the number of roles in each camp
         :param robots_count: the total number of robots, the default is 1
@@ -158,15 +148,13 @@ class Game(Board):
         if not dinosaurs_count:
             dinosaurs_count = 1
 
-        dinosaurs = 0
-        while dinosaurs != dinosaurs_count:
+        while dinosaurs_count != self._dinosaurs_count:
             self.set_dinosaurs()
-            dinosaurs += 1
+            self._dinosaurs_count += 1
 
-        robots = 0
-        while robots != robots_count:
+        while robots_count != self._robots_count:
             self.set_robots()
-            robots += 1
+            self._robots_count += 1
 
         self.initial_placement()
 

@@ -12,14 +12,13 @@ class TestGameFunctions(TestCase):
     def setUp(self):
         self.dim = 10
 
-    @async_test
-    async def test_initiate_random_game(self):
+    def test_initiate_random_game(self):
 
         """ Test function: create_random_game """
 
         print(f"<<< {self.test_initiate_random_game.__name__} start >>>")
 
-        game = await create_random_game(self.dim)
+        game = create_random_game(self.dim)
         self.assertIsInstance(game, Game)
         self.assertEqual(len(game.robots), 1)
         self.assertEqual(len(game.robots_position), 1)
@@ -28,26 +27,24 @@ class TestGameFunctions(TestCase):
 
         print("<<< test pass >>>\n\n\n")
 
-    @async_test
-    async def test_initiate_random_game_exception(self):
+    def test_initiate_random_game_exception(self):
 
         """ Test function error handling: create_random_game """
 
         print(f"<<< {self.test_initiate_random_game_exception.__name__} start >>>")
 
         with self.assertRaises(Exception):
-            await create_random_game(self.dim, robots_count=self.dim*self.dim+1, dinosaurs_count=0)
+            game = create_random_game(self.dim, robots_count=self.dim*self.dim+1, dinosaurs_count=0)
 
         with self.assertRaises(Exception):
-            await create_random_game(self.dim, robots_count=0, dinosaurs_count=self.dim*self.dim+1)
+            game = create_random_game(self.dim, robots_count=0, dinosaurs_count=self.dim*self.dim+1)
 
         with self.assertRaises(Exception):
-            await create_random_game(self.dim, robots_count=self.dim*self.dim//2, dinosaurs_count=self.dim*self.dim//2+1)
+            game = create_random_game(self.dim, robots_count=self.dim*self.dim//2, dinosaurs_count=self.dim*self.dim//2+1)
 
         print("<<< test pass >>>\n\n\n")
 
-    @async_test
-    async def test_create_game(self):
+    def test_create_game(self):
 
         """ Test function: create_game """
 
@@ -55,7 +52,7 @@ class TestGameFunctions(TestCase):
 
         robots = [{"coordinate": (0, 0), "direction": "N"}]
         dinosaurs = [(self.dim-1, self.dim-1)]
-        game = await create_game(self.dim, robots, dinosaurs)
+        game = create_game(self.dim, robots, dinosaurs)
         self.assertIsInstance(game, Game)
         self.assertEqual(len(game.robots), 1)
         self.assertEqual(len(game.robots_position), 1)
@@ -72,7 +69,7 @@ class TestGameFunctions(TestCase):
 
         print(f"<<< {self.test_game_control_exception.__name__} start >>>")
 
-        game = await create_random_game(self.dim)
+        game = create_random_game(self.dim)
         robot_robot_id = list(game.robots.keys())[0]
         with self.assertRaises(Exception):
             await move_robot(game, robot_robot_id, "exception")

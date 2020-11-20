@@ -154,7 +154,7 @@ class TestGameControllers(TestCase):
         print(f"<<< {self.test_remove_game.__name__} start >>>")
         game_id = self._create_game()
         resp = self.app.delete(f'/games/{game_id}')
-        self.assertEqual(resp.status_code, 204)
+        self.assertEqual(resp.status_code, 200)
 
         print("<<< test pass >>>\n\n\n")
 

@@ -3,13 +3,16 @@ from fastapi.responses import JSONResponse, HTMLResponse, RedirectResponse
 import logging
 
 from services.utils import COMMANDS, create_html
-from models.items import GamePayload, RobotPayload, StartResponse, ErrorMessage
+from models.items import GamePayload, RobotPayload, StartResponse, ErrorMessage, PlayResponse, DeletionMessage
 from models.setting import get_app_settings
 from services.play import create_random_game, create_game, move_robot
 from models.game import Game
 
 # Setting logging
-logging.basicConfig(filename='record.log', level=logging.DEBUG)
+logging.basicConfig(filename='record.log',
+                    format='%(asctime)s %(levelname)-8s %(message)s',
+                    level=logging.INFO,
+                    datefmt='%Y-%m-%d %H:%M:%S')
 logger = logging.getLogger(__name__)
 
 # Caching the games by id
@@ -34,7 +37,7 @@ def read_root() -> RedirectResponse:
     
     
 @app.post("/games/start", responses={200: {"model": StartResponse}, 400: {"model": ErrorMessage}})
-async def start_game(item: GamePayload) -> JSONResponse:
+def start_game(item: GamePayload) -> JSONResponse:
     """
     Start a game
     :param item: parameters to initialize a game instance
@@ -51,9 +54,9 @@ async def start_game(item: GamePayload) -> JSONResponse:
             )
 
         if robots and dinosaurs:
-            match: Game = await create_game(dim, robots=robots, dinosaurs=dinosaurs)
+            match: Game = create_game(dim, robots=robots, dinosaurs=dinosaurs)
         else:
-            match: Game = await create_random_game(dim, robots_count=robots_count, dinosaurs_count=dinosaurs_count)
+            match: Game = create_random_game(dim, robots_count=robots_count, dinosaurs_count=dinosaurs_count)
 
         GAMES[str(match.game_id)] = match
         logger.info(f">>>>>     Game {match.game_id} started     <<<<<<")
@@ -105,7 +108,7 @@ def display_game(game_id: str) -> HTMLResponse:
 
 
 @app.put("/games/{game_id}",
-         responses={200: {"model": StartResponse}, 400: {"model": ErrorMessage}, 404: {"model": ErrorMessage}})
+         responses={200: {"model": PlayResponse}, 400: {"model": ErrorMessage}, 404: {"model": ErrorMessage}})
 async def play_robots(game_id: str, item: RobotPayload) -> JSONResponse:
     """
     Operate specified robot to move forward and backward, turn right and left, and attack
@@ -164,7 +167,8 @@ async def play_robots(game_id: str, item: RobotPayload) -> JSONResponse:
         )
 
 
-@app.delete("/games/{game_id}", responses={400: {"model": ErrorMessage}, 404: {"model": ErrorMessage}})
+@app.delete("/games/{game_id}",
+            responses={200: {"model": DeletionMessage}, 400: {"model": ErrorMessage}, 404: {"model": ErrorMessage}})
 def remove_game(game_id: str) -> JSONResponse:
     """
     Remove a specified game instance in the cache
@@ -184,7 +188,7 @@ def remove_game(game_id: str) -> JSONResponse:
             "is_deleted": game_id not in GAMES,
         }
         logger.info(f"{res}")
-        return JSONResponse(status_code=204, content={})
+        return JSONResponse(status_code=200, content=res)
 
     except Exception as e:
         logger.error(f"Exception: {e}")
@@ -194,7 +198,7 @@ def remove_game(game_id: str) -> JSONResponse:
         )
 
 
-@app.delete("/games")
+@app.delete("/games", responses={400: {"model": ErrorMessage}})
 def remove_games() -> JSONResponse:
 
     """ Remove all games instances in the cache """

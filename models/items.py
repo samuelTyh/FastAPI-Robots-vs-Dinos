@@ -53,3 +53,11 @@ class ErrorMessage(BaseModel):
 
     status: bool
     detail: str
+
+
+class DeletionMessage(BaseModel):
+
+    """ The response model of deletion """
+
+    game_id: str
+    is_deleted: bool
