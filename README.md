@@ -10,7 +10,7 @@ The key features are:
 [Navigate to project requirement](#features-required)
 
 ## Quickstart
-[API document](https://robots-vs-dinos-e2rgcwogsq-ew.a.run.app/redoc)
+[API document](https://robots-vs-dinos-api-e2rgcwogsq-ew.a.run.app/redoc)
 
 ### Run locally
 * Prerequisites
