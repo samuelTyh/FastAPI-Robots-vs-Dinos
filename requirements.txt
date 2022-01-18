@@ -15,6 +15,6 @@ requests==2.25.0
 six==1.15.0
 starlette==0.13.6
 typing-extensions==3.7.4.3
-urllib3==1.26.4
+urllib3==1.26.5
 uvicorn==0.12.2
 wrapt==1.12.1
